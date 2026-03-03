@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char stack[100];
+int top = -1;
+char input[100];
+int i = 0;
+
+void push(char c) {
+    stack[++top] = c;
+}
+
+char pop() {
+    return stack[top--];
+}
+
+int main() {
+
+    printf("Enter the input string (end with $): ");
+    scanf("%s", input);
+
+    push('$');
+    push('E');   // Start symbol
+
+    while (top != -1) {
+
+        char stackTop = stack[top];
+        char currentInput = input[i];
+
+        if (stackTop == currentInput) {
+            pop();
+            i++;
+        }
+        else if (stackTop == 'E') {
+            if (currentInput == 'i' || currentInput == '(') {
+                pop();
+                push('Q');  // E'
+                push('T');
+            }
+            else break;
+        }
+        else if (stackTop == 'Q') {  // E'
+            if (currentInput == '+') {
+                pop();
+                push('Q');
+                push('T');
+                push('+');
+            }
+            else if (currentInput == ')' || currentInput == '$') {
+                pop(); // epsilon
+            }
+            else break;
+        }
+        else if (stackTop == 'T') {
+            if (currentInput == 'i' || currentInput == '(') {
+                pop();
+                push('R');  // T'
+                push('F');
+            }
+            else break;
+        }
+        else if (stackTop == 'R') {  // T'
+            if (currentInput == '*') {
+                pop();
+                push('R');
+                push('F');
+                push('*');
+            }
+            else if (currentInput == '+' || currentInput == ')' || currentInput == '$') {
+                pop(); // epsilon
+            }
+            else break;
+        }
+        else if (stackTop == 'F') {
+            if (currentInput == 'i') {
+                pop();
+                push('i');  // id represented as i
+            }
+            else if (currentInput == '(') {
+                pop();
+                push(')');
+                push('E');
+                push('(');
+            }
+            else break;
+        }
+        else {
+            break;
+        }
+    }
+
+    if (stack[top] == '$' && input[i] == '$')
+        printf("String Accepted\n");
+    else
+        printf("String Rejected\n");
+
+    return 0;
+}
